@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   version: 1.0.0
-  title: Back End API.
+  title: Local Community REST API.
   description: A small API for issues within a local community.
   contact: 
     name: Jordan Smith
