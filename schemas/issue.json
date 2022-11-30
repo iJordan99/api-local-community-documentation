@@ -1,0 +1,362 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"definitions": {
+		"issue": {
+			"$id": "#issue",
+			"title": "Issue",
+			"description": "An issue within the local community",
+			"type": "object",
+			"properties": {
+				"issueName": {
+					"description": "The name of the issue",
+					"type": "string",
+					"maxLength": 30
+				},
+				"description": {
+					"description": "A detailed, multi-line description of the issue",
+					"type": "string",
+					"maxLength": 500
+				},
+				"location": {
+					"description": "The location of the issue",
+					"type": "object",
+					"properties": {
+						"longitude": {
+							"type": "number",
+							"description": "longitude"
+						},
+						"latitude": {
+							"type": "number",
+							"description": "longitude"
+						},
+						"streetName":{
+							"type": "string",
+							"description": "Street name"
+						},
+						"streetNumber": {
+							"type": "string",
+							"description": "full address"
+						},
+						"postcode": {
+							"type": "string",
+							"description": "Postal code"
+						},
+						"countryCode": {
+							"type":  "string",
+							"description": "Country Code"
+						}
+					},
+          "dependencies": {
+            "latitude": ["longitude"],
+            "longitude": ["latitude"],
+            "postcode": ["streetName", "countryCode"],
+            "streetName": ["postcode", "countryCode"]
+          }
+        },
+				"photo": {
+					"description": "URL for photo of the issue",
+					"type": "string",
+					"format": "uri"
+				}
+			},
+			"required": ["issueName", "description", "location"],
+			"additionalProperties": false
+		},
+		"issueViewList": {
+			"$id": "issueView",
+			"title": "Issue View",
+			"description": "Issues owned by user",
+			"type": "object",
+			"properties": {
+				"issueName": {
+					"description": "Issue name",
+					"type": "string"
+				},
+				"uuid": {
+					"description": "uuid of issue",
+					"type": "string",
+					"format": "uuid"
+				},
+				"status": {
+					"description": "Current status of the issue",
+					"type": "string"
+				},
+				"links": {
+					"description": "Hateoas links",
+					"type": "object",
+					"properties": {
+						"self": {
+							"type": "string",
+							"format": "uri"
+						}
+					}
+				}
+			}
+		},
+		"issueList": {
+			"$id": "#issueList",
+			"title": "Issues List",
+			"description": "List of issues created by user. Admin user retrieves all issues by all users",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/issueViewList"
+			}
+		},
+		"issueDetails": {
+			"$id": "issueDetails",
+			"title": "Issue Details",
+			"description": "Issues filtered by status",
+			"type": "object",
+			"properties": {
+				"issueName": {
+					"description": "Issue name",
+					"type": "string"
+				},
+				"uuid": {
+					"description": "uuid of issue",
+					"type": "string",
+					"format": "uuid"
+				},
+				"photo": {
+					"description": "Link to photo",
+					"type": "string",
+					"format": "uri"
+				},
+				"status": {
+					"description": "Current status of the issue",
+					"type": "string"
+				},
+				"description": {
+					"description": "Description of issue",
+					"type": "string"
+				},
+				"createdAt": {
+					"description": "Date the issue was logged",
+					"type": "string",
+					"format": "date"
+				},
+				"updatedAt": {
+					"description": "Date the issue was last updated",
+					"type": "string",
+					"format": "date"
+				},
+				"location": {
+					"type": "object",
+					"properties": {
+						"longitude": {
+							"description": "latitude of issue",
+							"type": "number"
+						},
+						"latitude": {
+							"description": "longitude of issue",
+							"type": "number"
+						},
+						"streetName": {
+							"description": "location streetname",
+							"type": "string"
+						},
+						"countryCode": {
+							"description": "location country code",
+							"type": "string"
+						}
+						,
+						"postcode": {
+							"description": "location postcode",
+							"type": "string"
+						}
+						,
+						"county": {
+							"description": "location county",
+							"type": "string"
+						}
+						,
+						"city": {
+							"description": "location city",
+							"type": "string"
+						}
+					}
+				},
+				"links": {
+					"description": "Link to the issue",
+					"type": "object",
+					"properties": {
+						"self": {
+							"type": "string",
+							"format": "uri"
+						}
+					}
+				}
+			}
+		},
+		"filteredView": {
+			"$id": "filteredView",
+			"title": "Issue Filtered View",
+			"description": "Issues filtered by status",
+			"type": "object",
+			"properties": {
+				"issueName": {
+					"description": "Issue name",
+					"type": "string"
+				},
+				"uuid": {
+					"description": "uuid of issue",
+					"type": "string",
+					"format": "uuid"
+				},
+				"status": {
+					"description": "Current status of the issue",
+					"type": "string"
+				},
+				"createdAt": {
+					"description": "Date the issue was logged",
+					"type": "string",
+					"format": "date"
+				},
+				"links": {
+					"description": "Hateoas",
+					"type": "object",
+					"properties": {
+            "self": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+				}
+			}
+		},
+		"statusFilter": {
+			"$id": "statusFiler",
+			"title": "Filtered issue list by status",
+			"description": "List of issues filtered by their status",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/filteredView"
+			}
+		},
+		"statusUpdate": {
+			"$id": "#statusUpdate",
+			"title": "Issue Update",
+			"description": "Statuses a user can update",
+			"type": "object",
+			"properties": {
+				"status": {
+					"description": "value of status update",
+					"type": "string",
+					"enum": ["fixed", "flagged", "new", "addressed"]
+				}
+			},
+			"required": ["status"],
+			"additionalProperties": false
+		},
+		"issueCreated": {
+			"$id": "#issueCreated",
+			"title": "Issue Created",
+			"description": "Confirmation of a successful issue creation",
+			"type": "object",
+			"properties": {
+				"issueName": {
+					"description": "Name of the created issue",
+					"type": "string"
+				},
+				"uuid": {
+					"description": "uuid of the created issue",
+					"type": "string",
+					"format": "uuid"
+				},
+				"links": {
+					"description": "object of relevent hateoas",
+					"type": "object",
+					"properties": {
+						"self": {
+							"type": "string",
+							"format": "uri"
+						}
+					}
+				}
+			}
+		},
+		"updatedStatusView": {
+			"$id": "#updatedView",
+			"title": "Updated Status View",
+			"description": "Information about the updated issue",
+			"type": "object",
+			"properties": {
+				"uuid": {
+					"description": "",
+					"type": "string",
+					"format": "uuid"
+				},
+				"updatedAt": {
+					"description": "Date the issue status was updated",
+					"type": "string",
+					"format": "date"
+				},
+				"status": {
+					"description": "The updated status",
+					"type": "string"
+				},
+				"links": {
+					"type": "object",
+					"properties": {
+						"self": {
+							"type": "string",
+							"format": "uri"
+						}
+					}
+				}
+			}
+		},
+		"locationSortView": {
+			"$id": "#locationSortView",
+			"title": "Location Sort View",
+			"description": "Sorted list of nearest issues",
+			"type": "object",
+			"properties": {
+				"uuid": {
+					"description": "",
+					"type": "string",
+					"format": "uuid"
+				},
+				"location": {
+					"type":"object",
+					"properties": {
+						"longitude": {
+							"description": "longitude of issue",
+							"type": "number"
+						},
+						"latitude": {
+							"description": "latitude of issue",
+							"type": "number"
+						}
+					}
+				},
+				"status": {
+					"description": "Issue Status",
+					"type": "string"
+				},
+				"differenceInMetres": {
+					"description": "difference in metres",
+					"type": "number"
+				},
+				"links": {
+					"type": "object",
+					"properties": {
+						"self": {
+							"type": "string",
+							"format": "uri"
+						}
+					}
+				}
+			}
+		},
+		"locationSort": {
+			"$id": "locationSort",
+			"title": "Filtered issue sorted by closest",
+			"description": "List of issues sorted by nearest",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/locationSortView"
+			}
+		}
+	}
+}

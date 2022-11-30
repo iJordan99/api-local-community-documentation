@@ -1,0 +1,366 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Back End API.
+  description: A small API for issues within a local community.
+  contact: 
+    name: Jordan Smith
+    email: smithj115@uni.coventry.ac.uk
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'https://disneysummer-basilhazard-3000.codio-box.uk/api/v1'
+    description: Dev server
+components:
+  responses:
+    UnauthorizedError:
+      description: Authentication information is mising or invalid
+      headers:
+        WWW_Authenticate:
+  securitySchemes:
+    basicAuth:
+      type: https
+      schema: 
+    bearerAuth:
+      type: https
+      schema: bearer
+      bearerFormat: JWT
+tags: 
+  - name: Issues
+    description: API endpoints for performing CRUD operations on issues.
+  - name: Users
+    description: API endpoints for user management.
+security:
+  - basicAuth: []
+  - bearerAuth: []
+paths:
+  /issues:
+    summary: Represents a singular issue
+    description: > 
+      This resource represents a single issue submitted by a user in the database.
+      Each issue is identifiable by a `uuid`
+    post:
+      tags:
+        - Issues
+      description:
+        Create a new Issue
+      requestBody:
+        description: All new Issue information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./issue.json#/definitions/issue
+      responses:
+        '201':
+          description: Issue created
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/issueCreated
+        '409':
+          description: User attempting to create a duplicate
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+    get:
+      tags:
+        - Issues
+      summary:
+        List all issues submitted  
+      description: 
+        Users will see all of their own issues. Admin users will see all issues by  **all** users
+      responses:
+        '200':
+          description: List of issues
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/issueList
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+  /issues?status&limit=&page=:
+    get:
+      tags:
+        - Issues
+      summary: Filter issues by status
+      description: 
+        Returns a list of issues specific to one status
+      parameters:
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 50
+          description: Max number of issues
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 1
+          description: Page Number
+      responses:
+        '200':
+          description: View of filtered issues
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/statusFilter
+        '404':
+          description: Not found   
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+  /issues/{uuid}:
+    get:
+      tags: 
+        - Issues
+      summary: Get single issue
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Universal unique identifier of issue
+      responses:
+        '200':
+          description: View of issue
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/issueDetails
+        '404':
+          description: Not found
+        '403':
+          description: Non admin users can only view their own submissions
+        '401':  
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+    put:
+      tags: 
+        - Issues
+      summary: Update issue status
+      description:
+        Users can update an issue status to `fixed`. Admins have access to **all** status values
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Universal unique identifier of issue
+      requestBody:
+        description: All new Issue information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./issue.json#/definitions/statusUpdate
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/updatedStatusView
+        '403':
+          description: Non admin users can only update to a fixed status of their own issue
+        '404':
+          description: Not found
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      tags:
+        - Issues
+      summary: Delete an issue
+      description:
+        Users can delete an issue they created
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Universal unique identifier of issue   
+      responses:
+        '200':
+          description: Issue deleted
+        '403':
+          description: Forbidden - Users can only delete their own 
+        '404':
+          description: Not found
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+  /issues/near/location?longitude=&latitude=&=&status=?&limit=&page=:
+    get:
+      tags:
+        - Issues
+      summary: Nearest Issues
+      description:
+        Returns a list of issues sorted by the closest 
+      parameters:
+        - name: longitude
+          in: query
+          required: true
+          schema: 
+            type: number
+          description: longitude
+        - name: latitude
+          in: query
+          required: true
+          schema: 
+            type: number
+          description: latitude
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 50
+          description: Max number of issues
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 1
+          description: Page Number
+      responses:
+        '200':
+          description: 
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/locationSort
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+        '404': 
+          description: Not Found
+  /login:
+    get:
+      tags:
+        - Users
+      summary: JWT Token
+      description: Login via Basic auth to retrieve user JWT token
+      responses:
+        '200':
+          description: 
+          content:
+            application/json:
+              schema:
+                $ref: ./user.json#/definitions/JWT
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      requestBody:
+        description: All new Issue information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./user.json#/definitions/user
+      responses:
+        '201':
+          description: User created
+        '409':
+          description: User already exists
+    get:
+      tags:
+        - Users
+      summary: Get user details
+      description:
+        Fetches information regarding the current user. For admins a list of all users is returned. Excludes passwords
+      responses:
+        '200':
+          description: 
+          content:
+            application/json:
+              schema:
+                $ref: ./user.json#/definitions/userList   
+        '404':
+          description: No users found
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+  /users/{username}:
+    put:
+      tags:
+        - Users
+      summary: Update user details and credentials
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Username
+      requestBody:
+        description: New credentials/info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./user.json#/definitions/userUpdate
+      responses:
+        '200':
+          description: User updated
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User identifier
+      responses:
+        '204':
+          description: User deleted
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+
+
+         
+        
+
+
+    
+    
