@@ -10,8 +10,8 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-  - url: 'https://disneysummer-basilhazard-3000.codio-box.uk/api/v1'
-    description: Dev server
+  - url: 'hhttps://api-local-community.azurewebsites.net/api/v1/'
+    description: Production
 components:
   responses:
     UnauthorizedError:
