@@ -11,11 +11,11 @@ info:
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
   - url: 'https://api-local-community.azurewebsites.net/api/v1'
-    description: Dev server
+    description: Production server
 components:
   responses:
     UnauthorizedError:
-      description: Authentication information is mising or invalid
+      description: Authentication information is missing or invalid
       headers:
         WWW_Authenticate:
   securitySchemes:
