@@ -10,8 +10,8 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-  - url: 'https://api-local-community.azurewebsites.net/api/v1/'
-    description: Production
+  - url: 'https://disneysummer-basilhazard-3000.codio-box.uk/api/v1'
+    description: Dev server
 components:
   responses:
     UnauthorizedError:
@@ -368,25 +368,6 @@ paths:
       responses:
         '200':
           description: User updated
-        '403':
-          description: Forbidden
-        '401':
-          description: Unauthorized
-          $ref: '#/components/responses/UnauthorizedError'
-    delete:
-      tags:
-        - Users
-      summary: Delete a user
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-          description: User identifier
-      responses:
-        '204':
-          description: User deleted
         '403':
           description: Forbidden
         '401':
