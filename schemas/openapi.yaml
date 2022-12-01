@@ -243,7 +243,7 @@ paths:
         '401':
           description: Unauthorized
           $ref: '#/components/responses/UnauthorizedError'
-  /issues/near/location?longitude=&latitude=&=&status=?&limit=&page=:
+  /issues/near/location?longitude=&latitude=&status=&limit=&page=:
     get:
       tags:
         - Issues
