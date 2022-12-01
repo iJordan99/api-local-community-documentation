@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   version: 1.0.0
-  title: Local Community REST API.
+  title: Back End API.
   description: A small API for issues within a local community.
   contact: 
     name: Jordan Smith
@@ -10,12 +10,12 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-  - url: 'https://api-local-community.azurewebsites.net/api/v1'
-    description: Production server
+  - url: 'https://disneysummer-basilhazard-3000.codio-box.uk/api/v1'
+    description: Dev server
 components:
   responses:
     UnauthorizedError:
-      description: Authentication information is missing or invalid
+      description: Authentication information is mising or invalid
       headers:
         WWW_Authenticate:
   securitySchemes:
@@ -202,6 +202,42 @@ paths:
           description: Issue deleted
         '403':
           description: Forbidden - Users can only delete their own 
+        '404':
+          description: Not found
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/UnauthorizedError'
+  /issues/upload/:uuid:
+    put:
+      tags: 
+        - Issues
+      summary: Update issue Photo
+      description:
+        Users can update the issue to have a photo
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Universal unique identifier of issue
+      requestBody:
+        content:
+          multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  photo:
+                    type: jpeg/png/jpg
+
+      responses:
+        '200':
+          description: Photo updated
+          content:
+            application/json:
+              schema:
+                $ref: ./issue.json#/definitions/updatedStatusView
         '404':
           description: Not found
         '401':
